@@ -1,4 +1,4 @@
-package ru.mentee.power.variables.createdVariables;
+package ru.mentee.power.variables;
 
 public class Variables {
 

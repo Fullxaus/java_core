@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group = 'ru.mentee.power.variables'
+group = 'ru.mentee.power'
 version = '1.0-SNAPSHOT'
 
 repositories {

@@ -30,4 +30,3 @@ jobs:  # Задачи, которые будут выполняться
 
       - name: Clean and build  # Очистка и полная сборка проекта
         run: ./gradlew clean build
-

@@ -1,6 +1,6 @@
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import ru.mentee.power.variables.createdVariables.Variables;
+import ru.mentee.power.variables.Variables;
 
 import static org.junit.jupiter.api.Assertions.*;
 
