@@ -1,6 +1,6 @@
 package ru.mentee.power.variables;
 
-class ConstantsAndScope {
+public class ConstantsAndScope {
 
 
     // Константы класса (static final)
