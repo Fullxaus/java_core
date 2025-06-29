@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.offset;
 
 public class TaxCalculatorTest {
 
-    private static final double DELTA = 0.01; // Погрешность для сравнения double
+    public static final double DELTA = 0.01; // Погрешность для сравнения double
 
     @Test
     void testCalculateTax_Tier1() {
