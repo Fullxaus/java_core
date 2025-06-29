@@ -1,4 +1,4 @@
-import conditions.RentCar;
+import ru.mentee.power.conditions.RentCar;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
