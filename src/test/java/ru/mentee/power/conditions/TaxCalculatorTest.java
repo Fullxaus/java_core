@@ -1,4 +1,5 @@
-import ru.mentee.power.conditions.TaxCalculator;
+package ru.mentee.power.conditions;
+
 import org.junit.jupiter.api.Test;
 // Используем статический импорт для assertThat и offset
 import static org.assertj.core.api.Assertions.assertThat;

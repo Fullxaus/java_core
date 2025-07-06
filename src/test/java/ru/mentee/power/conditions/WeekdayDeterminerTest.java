@@ -1,5 +1,5 @@
+package ru.mentee.power.conditions;
 
-import ru.mentee.power.conditions.WeekdayDeterminer;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
