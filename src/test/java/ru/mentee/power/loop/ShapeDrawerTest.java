@@ -3,7 +3,7 @@ package ru.mentee.power.loop;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ShapeDrawerTest {
+    public class ShapeDrawerTest {
 
     private final ShapeDrawer drawer = new ShapeDrawer();
 
