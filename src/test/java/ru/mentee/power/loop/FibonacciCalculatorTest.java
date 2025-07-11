@@ -3,6 +3,7 @@ package ru.mentee.power.loop;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeout;
 import java.time.Duration;
 
@@ -63,5 +64,11 @@ public class FibonacciCalculatorTest {
             long result = calculator.fibonacciIterative(50);
             assertThat(result).isGreaterThan(0);
         });
+    }
+
+    @Test
+    public void testFibonacciRecursiveVeryNegativeValue() {
+        FibonacciCalculator calculator = new FibonacciCalculator();
+        assertThrows(IllegalArgumentException.class, () -> calculator.fibonacciRecursive(-100));
     }
 }

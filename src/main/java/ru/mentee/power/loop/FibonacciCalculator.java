@@ -19,6 +19,9 @@ public class FibonacciCalculator {
      * @return число Фибоначчи с индексом n
      */
     public long fibonacciRecursive(int n) {
+        if (n < 0) {
+            throw new IllegalArgumentException("n должно быть неотрицательным");
+        }
         if (n <= 1) {
             return n;
         }
