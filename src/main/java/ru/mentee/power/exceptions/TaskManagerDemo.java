@@ -1,169 +1,122 @@
 package ru.mentee.power.exceptions;
 
-import ru.mentee.power.methods.taskmanager.Task;
-import ru.mentee.power.methods.taskmanager.TaskManager;
-
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 /**
- * Демонстрационное приложение для работы с TaskManager (из MP-44),
- * которое улучшено с помощью обработки исключений.
+ * Демонстрационное приложение для работы с TaskManager.
  */
 public class TaskManagerDemo {
 
-    private static final Scanner scanner = new Scanner(System.in);
-    private static final TaskManager taskManager = new TaskManager();
-
     public static void main(String[] args) {
-        initializeTasks();
+        // Автоматическое закрытие Scanner
+        try (Scanner scanner = new Scanner(System.in)) {
 
-        boolean running = true;
-        System.out.println("Добро пожаловать в Менеджер Задач (с расширенной обработкой ошибок)!");
+            TaskManager account = null;
 
-        while (running) {
-            printMenu();
+            // Шаг 1: вводим строковый ID и начальный баланс
+            while (account == null) {
+                try {
+                    System.out.print("Введите ID счёта (например, ABC123): ");
+                    String id = scanner.next();         // единственное объявление id
 
-            int choice;
-            // TODO 1: Обработать InputMismatchException при вводе выбора меню
-            try {
-                System.out.print("Выберите действие (1-5): ");
-                choice = scanner.nextInt();
-                scanner.nextLine(); // Поглотить перевод строки
-            } catch (InputMismatchException e) {
-                System.out.println("Ошибка ввода: пожалуйста, введите номер действия (целое число 1–5).");
-                scanner.nextLine(); // Очистить буфер
-                continue;
+                    System.out.print("Введите начальный баланс (неотрицательное число): ");
+                    double balance = scanner.nextDouble();
+
+                    account = new TaskManager(id, balance);
+                }
+                catch (InputMismatchException ime) {
+                    System.out.println("Ошибка: введено не число. Повторите ввод.");
+                    scanner.nextLine(); // очищаем ввод
+                }
+                catch (IllegalArgumentException iae) {
+                    System.out.println("Ошибка: " + iae.getMessage());
+                    scanner.nextLine(); // очищаем ввод
+                }
             }
 
-            switch (choice) {
-                case 1:
-                    addTaskUI();
-                    break;
-                case 2:
-                    markTaskAsCompletedUI();
-                    break;
-                case 3:
-                    removeTaskUI();
-                    break;
-                case 4:
-                    taskManager.printAllTasks();
-                    break;
-                case 5:
-                    running = false;
-                    System.out.println("Выход из программы.");
-                    break;
-                default:
-                    System.out.println("Неверный выбор. Пожалуйста, выберите от 1 до 5.");
-            }
-            System.out.println();
-        }
+            // Шаг 2: основной цикл меню
+            boolean exit = false;
+            while (!exit) {
+                printMenu();
+                System.out.print("Выберите пункт меню: ");
 
-        scanner.close();
-    }
+                int choice;
+                try {
+                    choice = scanner.nextInt();
+                }
+                catch (InputMismatchException ime) {
+                    System.out.println("Ошибка: введите число от 1 до 4.");
+                    scanner.nextLine();
+                    continue;
+                }
 
-    // --- UI methods ---
+                switch (choice) {
+                    case 1: // Внести деньги
+                        try {
+                            System.out.print("Сумма для внесения: ");
+                            double deposit = scanner.nextDouble();
+                            account.deposit(deposit);
+                            System.out.printf("Успех! Новый баланс: %.2f%n", account.getBalance());
+                        }
+                        catch (InputMismatchException ime) {
+                            System.out.println("Ошибка: введено не число.");
+                            scanner.nextLine();
+                        }
+                        catch (IllegalArgumentException iae) {
+                            System.out.println("Ошибка: " + iae.getMessage());
+                        }
+                        break;
 
-    private static void addTaskUI() {
-        try {
-            System.out.print("Введите название задачи: ");
-            String title = scanner.nextLine().trim();
-            if (title.isEmpty()) {
-                throw new IllegalArgumentException("Название задачи не может быть пустым.");
-            }
+                    case 2: // Снять деньги
+                        try {
+                            System.out.print("Сумма для снятия: ");
+                            double withdraw = scanner.nextDouble();
+                            account.withdraw(withdraw);
+                            System.out.printf("Успех! Остаток на счёте: %.2f%n", account.getBalance());
+                        }
+                        catch (InputMismatchException ime) {
+                            System.out.println("Ошибка: введите корректное число.");
+                            scanner.nextLine();
+                        }
+                        catch (IllegalArgumentException iae) {
+                            System.out.println("Ошибка: " + iae.getMessage());
+                        }
+                        catch (TaskValidationException tve) {
+                            System.out.println("Недостаточно средств!");
+                            System.out.println("Текущий баланс: " + tve.getBalance());
+                            System.out.println("Запрошенная сумма: " + tve.getWithdrawAmount());
+                            System.out.println("Не хватает: " + tve.getDeficit());
+                        }
+                        break;
 
-            Task newTask = taskManager.addTask(title);
-            if (newTask != null) {
-                System.out.println("Задача '" + newTask.getTitle() +
-                        "' (ID: " + newTask.getId() + ") успешно добавлена.");
-            } else {
-                System.out.println("Не удалось добавить задачу.");
-            }
-        } catch (IllegalArgumentException e) {
-            System.out.println("Ошибка: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("Неожиданная ошибка при добавлении задачи: " + e.getMessage());
-        }
-    }
+                    case 3: // Проверить баланс
+                        System.out.printf("Ваш текущий баланс: %.2f%n", account.getBalance());
+                        break;
 
-    private static void markTaskAsCompletedUI() {
-        try {
-            System.out.print("Введите ID задачи для отметки как выполненной: ");
-            int id = scanner.nextInt();
-            scanner.nextLine();
+                    case 4: // Выход
+                        exit = true;
+                        System.out.println("Выход из программы...");
+                        break;
 
-            // TODO 2: проверка на отрицательный или нулевой ID
-            if (id <= 0) {
-                throw new IllegalArgumentException("ID задачи должен быть положительным числом.");
-            }
-
-            // Симулируем потенциальный NullPointerException
-            // Task t = taskManager.getTaskById(id);
-            // t.setCompleted(true);
-
-            boolean success = taskManager.markTaskAsCompleted(id);
-            if (success) {
-                System.out.println("Задача с ID " + id + " отмечена как выполненная.");
-            } else {
-                System.out.println("Задача с ID " + id + " не найдена.");
+                    default:
+                        System.out.println("Неверный выбор. Пожалуйста, выберите пункт от 1 до 4.");
+                }
             }
 
-        } catch (InputMismatchException e) {
-            System.out.println("Ошибка ввода: пожалуйста, введите корректный ID (целое число).");
-            scanner.nextLine();
-        } catch (IllegalArgumentException e) {
-            System.out.println("Ошибка: " + e.getMessage());
-            // TODO 3: перехват NullPointerException
-        } catch (NullPointerException e) {
-            System.out.println("Критическая ошибка: попытка работы с несуществующей задачей.");
-        } catch (Exception e) {
-            System.out.println("Неожиданная ошибка при отметке задачи: " + e.getMessage());
-        }
-    }
+        } // Scanner закрывается автоматически здесь
 
-    private static void removeTaskUI() {
-        try {
-            System.out.print("Введите ID задачи для удаления: ");
-            int id = scanner.nextInt();
-            scanner.nextLine();
-
-            // TODO 4: проверка на отрицательный или нулевой ID
-            if (id <= 0) {
-                throw new IllegalArgumentException("ID задачи должен быть положительным числом.");
-            }
-
-            boolean success = taskManager.removeTask(id);
-            if (success) {
-                System.out.println("Задача с ID " + id + " удалена.");
-            } else {
-                System.out.println("Задача с ID " + id + " не найдена.");
-            }
-
-        } catch (InputMismatchException e) {
-            System.out.println("Ошибка ввода: пожалуйста, введите корректный ID (целое число).");
-            scanner.nextLine();
-        } catch (IllegalArgumentException e) {
-            System.out.println("Ошибка: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("Неожиданная ошибка при удалении задачи: " + e.getMessage());
-        }
+        System.out.println("Программа завершена. Спасибо за использование TaskManagerDemo.");
     }
 
     private static void printMenu() {
-        System.out.println("===== МЕНЮ =====");
-        System.out.println("1. Добавить задачу (только название)");
-        System.out.println("2. Отметить задачу как выполненную");
-        System.out.println("3. Удалить задачу");
-        System.out.println("4. Показать все задачи");
-        System.out.println("5. Выход");
-        System.out.println("===============");
-    }
-
-    private static void initializeTasks() {
-        taskManager.addTask("Изучить исключения");
-        taskManager.addTask("Попрактиковаться с TaskManager");
-        System.out.println("Добавлены начальные задачи:");
-        taskManager.printAllTasks();
-        System.out.println();
+        System.out.println("====================================");
+        System.out.println("            МЕНЮ TASK MANAGER       ");
+        System.out.println("====================================");
+        System.out.println("1. Внести деньги");
+        System.out.println("2. Снять деньги");
+        System.out.println("3. Проверить баланс");
+        System.out.println("4. Выход");
+        System.out.println("====================================");
     }
 }
