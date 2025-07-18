@@ -11,8 +11,8 @@ public class PrimitiveParameterDemo {
     }
 
     public static void increment(int x) {
-        System.out.println("В начале метода: x = " + x);
+        System.out.println("В начале метода: x = ".formatted(x));
         x++;
-        System.out.println("После изменения в методе: x = " + x);
+        System.out.println("После изменения в методе: x = ".formatted(x));
     }
 }
