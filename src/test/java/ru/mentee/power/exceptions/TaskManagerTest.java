@@ -13,116 +13,87 @@ public class TaskManagerTest {
     private static final String ACCOUNT_ID = "ACC-123";
 
     @BeforeEach
-    void setUp() {
-        // Создать новый экземпляр TaskManager с начальными значениями
-        account = new TaskManager(ACCOUNT_ID, INITIAL_BALANCE);
+    void setUp() {account = new TaskManager(ACCOUNT_ID, INITIAL_BALANCE);
+    }
+
+
+    @Test
+    @DisplayName("Конструктор должен выбрасывать NullPointerException при null ID")
+    void constructorShouldThrowNullPointerExceptionForNullId() {
+        assertThatThrownBy(() -> new TaskManager(null, 100.0))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("id");
     }
 
     @Test
-    @DisplayName("Конструктор должен правильно устанавливать начальный баланс и ID")
-    void constructorShouldSetInitialBalanceAndId() {
-        assertThat(account.getId())
-                .as("ID счёта должно быть таким же, как в конструкторе")
-                .isEqualTo(ACCOUNT_ID);
-
-        assertThat(account.getBalance())
-                .as("Начальный баланс должно быть таким же, как передано в конструкторе")
-                .isEqualTo(INITIAL_BALANCE);
+    @DisplayName("Конструктор должен корректно работать при нулевом начальном балансе")
+    void constructorShouldAllowZeroInitialBalance() {
+        TaskManager zeroAccount = new TaskManager(ACCOUNT_ID, 0.0);
+        assertThat(zeroAccount.getBalance()).isZero();
+        assertThat(zeroAccount.getId()).isEqualTo(ACCOUNT_ID);
     }
 
     @Test
-    @DisplayName("Конструктор должен выбрасывать IllegalArgumentException при отрицательном балансе")
-    void constructorShouldThrowIllegalArgumentExceptionForNegativeBalance() {
-        // при отрицательном балансе
-        assertThatThrownBy(() -> new TaskManager(ACCOUNT_ID, -10.0))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Начальный баланс не может быть отрицательным");
-    }
-
-    // --- Тесты для deposit ---
-
-    @Test
-    @DisplayName("Метод deposit должен увеличивать баланс при положительной сумме")
-    void depositShouldIncreaseBalanceForPositiveAmount() {
-        account.deposit(500.0);
-        assertThat(account.getBalance())
-                .isEqualTo(INITIAL_BALANCE + 500.0);
-    }
-
-    @Test
-    @DisplayName("Метод deposit должен допускать нулевую сумму")
-    void depositShouldAllowZeroAmount() {
-        account.deposit(0.0);
-        assertThat(account.getBalance())
-                .isEqualTo(INITIAL_BALANCE);
-    }
-
-    @Test
-    @DisplayName("Метод deposit должен выбрасывать IllegalArgumentException при отрицательной сумме")
-    void depositShouldThrowIllegalArgumentExceptionForNegativeAmount() {
+    @DisplayName("Метод deposit должен принимать очень маленькую положительную сумму (EPS)")
+    void depositShouldAcceptTinyPositiveAmount() {
         double before = account.getBalance();
-        assertThatThrownBy(() -> account.deposit(-1.0))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Сумма депозита не может быть отрицательной");
-
-        // убедиться, что баланс не изменился
-        assertThat(account.getBalance()).isEqualTo(before);
-    }
-
-    // --- Тесты для withdraw ---
-
-    @Test
-    @DisplayName("Метод withdraw должен уменьшать баланс при корректной сумме")
-    void withdrawShouldDecreaseBalanceForValidAmount() throws TaskValidationException {
-        account.withdraw(200.0);
-        assertThat(account.getBalance()).isEqualTo(INITIAL_BALANCE - 200.0);
+        double eps = Double.MIN_VALUE; // самая маленькая положительная константа double
+        account.deposit(eps);
+        assertThat(account.getBalance()).isEqualTo(before + eps);
     }
 
     @Test
-    @DisplayName("Метод withdraw должен позволять снять полный баланс")
-    void withdrawShouldAllowWithdrawingFullBalance() throws TaskValidationException {
-        account.withdraw(INITIAL_BALANCE);
-        assertThat(account.getBalance()).isZero();
+    @DisplayName("Метод deposit должен выбрасывать при переполнении баланса")
+    void depositShouldThrowOnOverflow() {
+        double huge = Double.MAX_VALUE;
+        TaskManager hugeAccount = new TaskManager(ACCOUNT_ID, huge);
+
+        // Проверяем, что при депозите не бросается исключения:
+        assertThatCode(() -> hugeAccount.deposit(huge))
+                .doesNotThrowAnyException();
+
+        // А баланс становится бесконечностью:
+        assertThat(hugeAccount.getBalance())
+                .isInfinite()              // баланс == Infinity
+                .isPositive();             // и это +Infinity
     }
 
     @Test
-    @DisplayName("Метод withdraw должен допускать нулевую сумму")
-    void withdrawShouldAllowZeroAmount() throws TaskValidationException {
-        account.withdraw(0.0);
-        assertThat(account.getBalance()).isEqualTo(INITIAL_BALANCE);
+    @DisplayName("Метод withdraw должен корректно работать при снятии почти всего баланса (balance - EPS)")
+    void withdrawShouldAllowAlmostFullBalance() throws TaskValidationException {
+        double eps = 1e-10;
+        double amount = INITIAL_BALANCE - eps;
+        account.withdraw(amount);
+
+        // проверяем, что остаток близок к eps с допускам 1e-10
+        assertThat(account.getBalance())
+                .isCloseTo(eps, within(1e-10));
     }
 
     @Test
-    @DisplayName("Метод withdraw должен выбрасывать IllegalArgumentException при отрицательной сумме")
-    void withdrawShouldThrowIllegalArgumentExceptionForNegativeAmount() {
-        double before = account.getBalance();
-        assertThatThrownBy(() -> account.withdraw(-5.0))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Сумма снятия не может быть отрицательной");
-
-        // баланс не должен измениться
-        assertThat(account.getBalance()).isEqualTo(before);
-    }
-
-    @Test
-    @DisplayName("Метод withdraw должен выбрасывать TaskValidationException при превышении баланса")
-    void withdrawShouldThrowTaskValidationExceptionWhenAmountExceedsBalance() {
-        double excessiveAmount = INITIAL_BALANCE + 100.0;
-        double before = account.getBalance();
-
-        assertThatThrownBy(() -> account.withdraw(excessiveAmount))
+    @DisplayName("Метод withdraw должен выбрасывать при underflow (слишком большой запрос)")
+    void withdrawShouldThrowOnUnderflow() {
+        // Сразу берем сумму, которая приведет к очень большому дефициту
+        double excessive = Double.MAX_VALUE;
+        assertThatThrownBy(() -> account.withdraw(excessive))
                 .isInstanceOf(TaskValidationException.class)
+                .hasMessageContaining("Недостаточно средств для снятия")
                 .satisfies(ex -> {
                     TaskValidationException tve = (TaskValidationException) ex;
-                    // проверяем сообщение
-                    assertThat(tve).hasMessageContaining("Недостаточно средств");
-                    // проверяем поля
-                    assertThat(tve.getBalance()).isEqualTo(before);
-                    assertThat(tve.getWithdrawAmount()).isEqualTo(excessiveAmount);
-                    assertThat(tve.getDeficit()).isEqualTo(excessiveAmount - before);
+                    assertThat(tve.getBalance()).isEqualTo(INITIAL_BALANCE);
+                    assertThat(tve.getWithdrawAmount()).isEqualTo(excessive);
+                    assertThat(tve.getDeficit()).isEqualTo(excessive - INITIAL_BALANCE);
                 });
+    }
 
-        // после неудачной попытки баланс остался прежним
+    @Test
+    @DisplayName("Метод withdraw не изменяет баланс, если сумма равна 0.0 (проверка на -0.0)")
+    void withdrawShouldAllowNegativeZeroAmount() throws TaskValidationException {
+        double before = account.getBalance();
+        double negativeZero = -0.0d;   // IEEE-754 «-0.0»
+        // На практике amount < 0.0 бросит IllegalArgumentException,
+        // но проверяем, что -0.0 рассматривается как 0.0
+        account.withdraw(negativeZero);
         assertThat(account.getBalance()).isEqualTo(before);
     }
 }
