@@ -13,8 +13,7 @@ public class TaskManagerTest {
     private static final String ACCOUNT_ID = "ACC-123";
 
     @BeforeEach
-    void setUp() {
-        account = new TaskManager(ACCOUNT_ID, INITIAL_BALANCE);
+    void setUp() {account = new TaskManager(ACCOUNT_ID, INITIAL_BALANCE);
     }
 
 

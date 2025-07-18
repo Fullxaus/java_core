@@ -37,7 +37,7 @@ public class TaskManager {
         return balance;
     }
 
-    /**
+        /**
      * Пополнение счета.
      *
      * @param amount сумма пополнения, >= 0
