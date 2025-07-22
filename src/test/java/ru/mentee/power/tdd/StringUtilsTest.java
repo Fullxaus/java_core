@@ -57,4 +57,45 @@ public class StringUtilsTest {
         assertThat(actual).isNull();
     }
 
+    @Test
+    @DisplayName("Переворот строки с одним символом")
+    void shouldReturnSameStringWhenSingleCharacter() {
+        // Arrange
+        String original = "a";
+        String expected = "a";
+
+        // Act
+        String actual = stringUtils.reverse(original);
+
+        // Assert
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("Переворот строки-палиндрома")
+    void shouldReturnSameStringForPalindrome() {
+        // Arrange
+        String original = "madam";
+        String expected = "madam";
+
+        // Act
+        String actual = stringUtils.reverse(original);
+
+        // Assert
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("Переворот строки с пробелами и цифрами")
+    void shouldReverseStringWithSpacesAndDigits() {
+        // Arrange
+        String original = "123 abc 456";
+        String expected = "654 cba 321";
+
+        // Act
+        String actual = stringUtils.reverse(original);
+
+        // Assert
+        assertThat(actual).isEqualTo(expected);
+    }
 }
