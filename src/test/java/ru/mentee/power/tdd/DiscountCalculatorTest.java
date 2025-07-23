@@ -50,13 +50,13 @@ public class DiscountCalculatorTest {
         assertThat(actualPrice).isEqualTo(expectedPrice, offset(0.01));
     }
 
-    // --- Новые тесты для граничных значений --- //
+    // --- Граничные тесты для конкретных порогов --- //
 
     @Test
     @DisplayName("Граница: ровно 1000 — скидка 0%")
     void shouldApplyZeroDiscountForAmountExactly1000() {
         double amount = 1000.0;
-        double expectedPrice = 1000.0; // нет скидки
+        double expectedPrice = 1000.0;
 
         double actualPrice = calculator.calculateDiscountedPrice(amount);
 
@@ -67,7 +67,7 @@ public class DiscountCalculatorTest {
     @DisplayName("Граница: 1000.01 — скидка 10%")
     void shouldApply10PercentDiscountForAmountJustAbove1000() {
         double amount = 1000.01;
-        double expectedPrice = amount * 0.9; // скидка 10%
+        double expectedPrice = amount * 0.9;
 
         double actualPrice = calculator.calculateDiscountedPrice(amount);
 
@@ -78,7 +78,7 @@ public class DiscountCalculatorTest {
     @DisplayName("Граница: ровно 5000 — скидка 10%")
     void shouldApply10PercentDiscountForAmountExactly5000() {
         double amount = 5000.0;
-        double expectedPrice = amount * 0.9; // скидка 10%
+        double expectedPrice = amount * 0.9;
 
         double actualPrice = calculator.calculateDiscountedPrice(amount);
 
@@ -89,7 +89,53 @@ public class DiscountCalculatorTest {
     @DisplayName("Граница: 5000.01 — скидка 20%")
     void shouldApply20PercentDiscountForAmountJustAbove5000() {
         double amount = 5000.01;
-        double expectedPrice = amount * 0.8; // скидка 20%
+        double expectedPrice = amount * 0.8;
+
+        double actualPrice = calculator.calculateDiscountedPrice(amount);
+
+        assertThat(actualPrice).isEqualTo(expectedPrice, offset(0.01));
+    }
+
+    // --- Дополнительные граничные случаи --- //
+
+    @Test
+    @DisplayName("Нулевая сумма — скидка 0%")
+    void shouldApplyZeroDiscountForZeroAmount() {
+        double amount = 0.0;
+        double expectedPrice = 0.0;
+
+        double actualPrice = calculator.calculateDiscountedPrice(amount);
+
+        assertThat(actualPrice).isEqualTo(expectedPrice, offset(0.01));
+    }
+
+    @Test
+    @DisplayName("Граница: чуть меньше 1000 (999.99) — скидка 0%")
+    void shouldApplyZeroDiscountForAmountJustBelow1000() {
+        double amount = 999.99;
+        double expectedPrice = amount;
+
+        double actualPrice = calculator.calculateDiscountedPrice(amount);
+
+        assertThat(actualPrice).isEqualTo(expectedPrice, offset(0.01));
+    }
+
+    @Test
+    @DisplayName("Граница: чуть меньше 5000 (4999.99) — скидка 10%")
+    void shouldApply10PercentDiscountForAmountJustBelow5000() {
+        double amount = 4999.99;
+        double expectedPrice = amount * 0.9;
+
+        double actualPrice = calculator.calculateDiscountedPrice(amount);
+
+        assertThat(actualPrice).isEqualTo(expectedPrice, offset(0.01));
+    }
+
+    @Test
+    @DisplayName("Очень большая сумма (1_000_000) — скидка 20%")
+    void shouldApply20PercentDiscountForVeryLargeAmount() {
+        double amount = 1_000_000.0;
+        double expectedPrice = amount * 0.8;
 
         double actualPrice = calculator.calculateDiscountedPrice(amount);
 

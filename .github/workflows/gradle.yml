@@ -1,32 +1,50 @@
-name: Java CI with Gradle  # Название вашего workflow
+name: Java CI with Gradle
 
-on:  # Определяет, когда будет запускаться workflow
+on:
   push:
-    branches: [ main, feature/* ]  # При push в ветку main или любую feature-ветку
+    branches:
+      - main
+      - 'feature/*'
   pull_request:
-    branches: [ main ]  # При создании PR в main
+    branches:
+      - main
 
-jobs:  # Задачи, которые будут выполняться
-  build:  # Название задачи
-    runs-on: ubuntu-latest  # На какой ОС будет выполняться (исправил alpine на ubuntu)
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-    steps:  # Шаги выполнения
-      - uses: actions/checkout@v3  # Клонирование репозитория
+    steps:
+      # 1. Клонируем репозиторий
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Set up JDK 21  # Установка Java 21
+      # 2. Устанавливаем JDK 21
+      - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
+          distribution: temurin
           java-version: '21'
-          distribution: 'temurin'
 
-      - name: Prepare  # Подготовка Предоставление прав на выполнение
+      # 3. Делаем Gradle-обёртку исполняемой
+      - name: Prepare Gradle wrapper
         run: chmod +x gradlew
 
-      - name: Build without tests  # Сборка проекта без тестов
+      # 4. (Опционально) Сборка без тестов
+      - name: Build without tests
         run: ./gradlew clean build -x test
 
-      - name: Run tests  # Запуск тестов
-        run: ./gradlew test
+      # 5. Запускаем тесты с генерацией отчёта JaCoCo
+      - name: Run tests with JaCoCo
+        run: ./gradlew test jacocoTestReport
 
-      - name: Clean and build  # Очистка и полная сборка проекта
+      # 6. Загружаем HTML-отчёт JaCoCo как артефакт
+      - name: Upload JaCoCo coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report-${{ github.run_id }}
+          path: build/reports/jacoco/test/html
+          retention-days: 7
+
+      # 7. Финальная полная сборка (если требуется)
+      - name: Clean and full build
         run: ./gradlew clean build
