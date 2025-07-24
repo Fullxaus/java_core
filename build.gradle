@@ -1,6 +1,7 @@
 plugins {
     id 'java'
-    id 'jacoco' // Добавляем плагин JaCoCo
+    id 'jacoco'
+    id 'checkstyle'
 }
 
 group = 'ru.mentee.power'
@@ -11,11 +12,17 @@ repositories {
 }
 
 dependencies {
+    implementation "org.jetbrains:annotations:24.0.1"
+
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
     testImplementation 'org.assertj:assertj-core:3.21.0'
-    implementation("org.jetbrains:annotations:24.0.1")
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 test {
@@ -23,14 +30,30 @@ test {
     finalizedBy tasks.named('jacocoTestReport')
 }
 
+// ----- JaCoCo -----
+jacoco {
+    toolVersion = "0.8.10"
+}
+
 jacocoTestReport {
     dependsOn tasks.named('test')
-
     reports {
         xml.required = false
         csv.required = false
         html.required = true
     }
-    // (Опционально) Можно указать, какие классы исключить из отчета
-    // classDirectories.setFrom(files(classDirectories.files.collect { fileTree(dir: it, exclude: '**/some/package/to/exclude/**') }))
 }
+
+checkstyle {
+    toolVersion = '10.12.5'
+    //config/checkstyle/google_checks.xml
+    configFile = file("${rootDir}/config/checkstyle/google_checks.xml")
+
+}
+
+
+
+// Интегрируем checkstyle в общую задачу проверки
+tasks.named('check') {
+    dependsOn tasks.named('checkstyleMain')
+    dependsOn tasks.named('checkstyleTest')}
