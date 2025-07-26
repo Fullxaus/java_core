@@ -1,25 +1,29 @@
 package ru.mentee.power.comparators;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Класс для управления каталогом книг в библиотеке
+ * Класс для управления каталогом книг в библиотеке.
  */
 public class BookCatalog {
-    private List<Book> books;
 
+    private final List<Book> books;
 
     /**
-     * Создает пустой каталог книг
+     * Создаёт пустой каталог книг.
      */
     public BookCatalog() {
         this.books = new ArrayList<>();
     }
 
     /**
-     * Добавляет книгу в каталог
+     * Добавляет книгу в каталог.
+     *
      * @param book книга для добавления
      */
     public void addBook(Book book) {
@@ -29,7 +33,8 @@ public class BookCatalog {
     }
 
     /**
-     * Возвращает неизменяемый список всех книг в каталоге
+     * Возвращает неизменяемый список всех книг в каталоге.
+     *
      * @return список книг
      */
     public List<Book> getAllBooks() {
@@ -37,7 +42,8 @@ public class BookCatalog {
     }
 
     /**
-     * Сортирует книги по заданному компаратору
+     * Сортирует книги по заданному компаратору.
+     *
      * @param comparator компаратор для сортировки
      * @return новый отсортированный список книг (исходный список не меняется)
      */
@@ -48,7 +54,8 @@ public class BookCatalog {
     }
 
     /**
-     * Фильтрует книги по заданному условию
+     * Фильтрует книги по заданному условию.
+     *
      * @param predicate условие фильтрации
      * @return новый список книг, удовлетворяющих условию
      */
@@ -57,8 +64,6 @@ public class BookCatalog {
                 .filter(predicate)
                 .collect(Collectors.toList());
     }
-
-    // Статические компараторы для удобства использования
 
     /**
      * @return компаратор для сортировки по названию (по алфавиту)
@@ -82,24 +87,26 @@ public class BookCatalog {
     }
 
     /**
-     * @return компаратор для сортировки по количеству страниц (от меньшего к большему)
+     * @return компаратор для сортировки по количеству страниц
+     *         (от меньшего к большему)
      */
     public static Comparator<Book> byPageCount() {
         return Comparator.comparingInt(Book::getPageCount);
     }
 
     /**
-     * Создает сложный компаратор для сортировки по нескольким критериям
+     * Создаёт сложный компаратор для сортировки по нескольким критериям.
+     *
      * @param comparators список компараторов в порядке приоритета
      * @return композитный компаратор
      */
-    public static Comparator<Book> multipleComparators(List<Comparator<Book>> comparators) {
+    public static Comparator<Book> multipleComparators(
+            List<Comparator<Book>> comparators) {
         if (comparators == null || comparators.isEmpty()) {
-            return (b1, b2) -> 0; // если нет критериев — всегда равны
+            return (b1, b2) -> 0; // Если нет критериев — всегда равны.
         }
-        // Начинаем с первого компаратора
+
         Comparator<Book> composite = comparators.get(0);
-        // Сортируем остальные через thenComparing
         for (int i = 1; i < comparators.size(); i++) {
             composite = composite.thenComparing(comparators.get(i));
         }

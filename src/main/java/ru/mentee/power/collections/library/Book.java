@@ -14,7 +14,7 @@ public class Book {
     private boolean available;
 
     public enum Genre {
-        FICTION, NON_FICTION, SCIENCE, HISTORY, FANTASY, DETECTIVE, ROMANCE, BIOGRAPHY, CHILDREN,PROGRAMMING,SCIENTIFIC
+        FICTION, NON_FICTION, SCIENCE, HISTORY, FANTASY, DETECTIVE, ROMANCE, BIOGRAPHY, CHILDREN, PROGRAMMING, SCIENTIFIC
     }
 
     public Book(String isbn, String title, int publicationYear, Genre genre) {
@@ -26,16 +26,41 @@ public class Book {
         this.available = true;
     }
 
-    public String getIsbn() { return isbn; }
-    public String getTitle() { return title; }
-    public Set<String> getAuthors() { return authors; }
-    public Genre getGenre() { return genre; }
-    public int getPublicationYear() { return publicationYear; }
-    public int getPageCount() { return pageCount; }
-    public boolean isAvailable() { return available; }
+    public String getIsbn() {
+        return isbn;
+    }
 
-    public void setPageCount(int pageCount) { this.pageCount = pageCount; }
-    public void setAvailable(boolean available) { this.available = available; }
+    public String getTitle() {
+        return title;
+    }
+
+    public Set<String> getAuthors() {
+        return authors;
+    }
+
+    public Genre getGenre() {
+        return genre;
+    }
+
+    public int getPublicationYear() {
+        return publicationYear;
+    }
+
+    public int getPageCount() {
+        return pageCount;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setPageCount(int pageCount) {
+        this.pageCount = pageCount;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
 
     public void addAuthor(String author) {
         authors.add(author);
@@ -43,8 +68,12 @@ public class Book {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Book)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Book)) {
+            return false;
+        }
         Book book = (Book) o;
         return Objects.equals(isbn, book.isbn);
     }

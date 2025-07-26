@@ -10,13 +10,13 @@ public class NumberFilter {
      * @param numbers Список целых чисел
      * @return Новый список, содержащий только четные числа из исходного списка
      */
-    public static List<Integer> filterEvenNumbers(List<Integer> numbers) {
-        List<Integer> result = new ArrayList<>();
+    public static List<Integer> filterEvenNumbers(final List<Integer> numbers) {
+        final List<Integer> result = new ArrayList<>();
         if (numbers == null) {
             return result;
         }
 
-        for (Integer num : numbers) {
+        for (final Integer num : numbers) {
             if (num != null && num % 2 == 0) {
                 result.add(num);
             }

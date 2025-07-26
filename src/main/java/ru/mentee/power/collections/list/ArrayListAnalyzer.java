@@ -3,12 +3,12 @@ package ru.mentee.power.collections.list;
 import java.util.*;
 
 /**
- * Класс для анализа и обработки списков на основе ArrayList
+ * Класс для анализа и обработки списков на основе ArrayList.
  */
 public class ArrayListAnalyzer {
 
     /**
-     * Фильтрует список строк, оставляя только те, которые начинаются с указанного префикса
+     * Фильтрует список строк, оставляя только те, которые начинаются с указанного префикса.
      *
      * @param strings список строк для фильтрации
      * @param prefix  префикс для фильтрации
@@ -24,7 +24,7 @@ public class ArrayListAnalyzer {
         }
 
         List<String> result = new ArrayList<>(strings.size());
-        //  цикл для  работы с ArrayList
+        // Цикл для работы с ArrayList
         for (int i = 0, n = strings.size(); i < n; i++) {
             String s = strings.get(i);
             if (s != null && s.startsWith(prefix)) {
@@ -35,7 +35,7 @@ public class ArrayListAnalyzer {
     }
 
     /**
-     * Находит максимальный элемент в списке
+     * Находит максимальный элемент в списке.
      *
      * @param numbers список чисел
      * @return максимальное число из списка
@@ -61,10 +61,11 @@ public class ArrayListAnalyzer {
     }
 
     /**
-     * Разбивает список на части указанного размера
+     * Разбивает список на части указанного размера.
      *
      * @param list     исходный список
      * @param partSize размер каждой части
+     * @param <T>      тип элементов списка
      * @return список списков, где каждый внутренний список имеет размер не более partSize
      * @throws IllegalArgumentException если list равен null или partSize <= 0
      */
@@ -78,7 +79,7 @@ public class ArrayListAnalyzer {
 
         List<List<T>> result = new ArrayList<>((list.size() + partSize - 1) / partSize);
         for (int i = 0, n = list.size(); i < n; i += partSize) {
-            // элемент найден и мы возвращаем новый список, чтобы не потерять главный список
+            // Элемент найден и мы возвращаем новый список, чтобы не потерять главный список
             int end = Math.min(n, i + partSize);
             result.add(new ArrayList<>(list.subList(i, end)));
         }
@@ -87,9 +88,10 @@ public class ArrayListAnalyzer {
 
     /**
      * Проверяет, является ли список палиндромом
-     * (читается одинаково в обоих направлениях)
+     * (читается одинаково в обоих направлениях).
      *
      * @param list список для проверки
+     * @param <T>  тип элементов списка
      * @return true, если список является палиндромом, иначе false
      * @throws IllegalArgumentException если list равен null
      */

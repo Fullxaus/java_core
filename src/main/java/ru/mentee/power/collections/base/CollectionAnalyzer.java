@@ -1,20 +1,25 @@
 package ru.mentee.power.collections.base;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.ArrayList;
 
+/**
+ * Утилитный класс для анализа коллекций.
+ */
 public class CollectionAnalyzer {
 
     /**
      * Находит все строки в коллекции, длина которых строго больше заданной.
-     * Корректно обрабатывает null и пустые коллекции.
+     * Корректно обрабатывает {@code null} и пустые коллекции.
      *
-     * @param strings Коллекция строк
-     * @param minLength Минимальная длина
-     * @return Список строк, длина которых строго больше minLength
+     * @param strings   коллекция строк
+     * @param minLength минимальная длина
+     * @return список строк, длина которых строго больше {@code minLength}
      */
-    public static List<String> findLongStrings(Collection<String> strings, int minLength) {
+    public static List<String> findLongStrings(
+            final Collection<String> strings,
+            final int minLength) {
         List<String> result = new ArrayList<>();
         if (strings == null || strings.isEmpty()) {
             return result;
@@ -28,14 +33,17 @@ public class CollectionAnalyzer {
     }
 
     /**
-     * Подсчитывает количество элементов в коллекции, у которых сумма цифр абсолютного значения
-     * строго больше threshold. Корректно обрабатывает null и пустые коллекции.
+     * Подсчитывает количество элементов в коллекции, у которых сумма цифр
+     * абсолютного значения строго больше {@code threshold}.
+     * Корректно обрабатывает {@code null} и пустые коллекции.
      *
-     * @param numbers Коллекция целых чисел
-     * @param threshold Пороговое значение для суммы цифр
-     * @return Количество чисел с суммой цифр больше threshold
+     * @param numbers   коллекция целых чисел
+     * @param threshold пороговое значение для суммы цифр
+     * @return количество чисел с суммой цифр больше {@code threshold}
      */
-    public static int countNumbersWithDigitSumGreaterThan(Collection<Integer> numbers, int threshold) {
+    public static int countNumbersWithDigitSumGreaterThan(
+            final Collection<Integer> numbers,
+            final int threshold) {
         if (numbers == null || numbers.isEmpty()) {
             return 0;
         }
@@ -49,12 +57,13 @@ public class CollectionAnalyzer {
     }
 
     /**
-     * Подсчитывает сумму цифр числа, используя абсолютное значение (на случай отрицательных чисел).
+     * Подсчитывает сумму цифр числа, используя абсолютное значение
+     * (на случай отрицательных чисел).
      *
-     * @param number Целое число
-     * @return Сумма цифр числа
+     * @param number целое число
+     * @return сумма цифр числа
      */
-    static int calculateDigitSum(int number) {
+    static int calculateDigitSum(final int number) {
         int sum = 0;
         int n = Math.abs(number);
         while (n > 0) {

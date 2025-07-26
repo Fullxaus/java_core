@@ -212,7 +212,7 @@ public class LibraryManagerTest {
 
     @Nested
     @DisplayName("Тесты сортировки книг")
-    class BookSortingTests {
+    public class BookSortingTests {
 
         @Test
         @DisplayName("Должен корректно сортировать книги по названию")
@@ -537,7 +537,7 @@ public class LibraryManagerTest {
             libraryManager.borrowBook("978-1-491-91205-8", "RDR002", -1); // Выдаем книгу на 1 день назад
 
             // Когда: запрашиваем список читателей с просроченными книгами
-            List<Reader> overdueReaders = libraryManager.getReadersWithOverdueBooks();
+            List<Reader> overdueReaders = libraryManager.findReadersWithOverdueBooks();
 
             // Тогда: Возвращается только тот читатель, у кого книга просрочена
             assertThat(overdueReaders).hasSize(1);

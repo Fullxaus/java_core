@@ -1,26 +1,44 @@
 package ru.mentee.power.collections.library;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Менеджер библиотеки. Держит в памяти книги, читателей и историю выдач.
+ */
 public class LibraryManager {
-    // Коллекция для хранения книг (ISBN -> Book)
+
+    /** Коллекция для хранения книг (ISBN -> Book). */
     private final Map<String, Book> booksByIsbn;
 
-    // Коллекция для хранения читателей (ID -> Reader)
+    /** Коллекция для хранения читателей (ID -> Reader). */
     private final Map<String, Reader> readersById;
 
-    // Коллекция для хранения истории выдач
+    /** Коллекция для хранения истории выдач. */
     private final List<Borrowing> borrowings;
 
-    // Коллекция для группировки книг по жанрам (Genre -> Set<Book>)
+    /** Коллекция для группировки книг по жанрам (Genre -> Set&lt;Book&gt;). */
     private final Map<Book.Genre, Set<Book>> booksByGenre;
 
-    // Коллекция для хранения авторов и их книг (автор -> List<Book>)
+    /** Коллекция для хранения авторов и их книг (автор -> List&lt;Book&gt;). */
     private final Map<String, List<Book>> booksByAuthor;
 
-    // Конструктор
+    /**
+     * Конструктор. Инициализирует все внутренние структуры и создает пустые множества
+     * в booksByGenre для каждого жанра.
+     */
     public LibraryManager() {
         this.booksByIsbn = new HashMap<>();
         this.readersById = new HashMap<>();
@@ -28,104 +46,106 @@ public class LibraryManager {
         this.booksByGenre = new HashMap<>();
         this.booksByAuthor = new HashMap<>();
 
-        // Инициализация жанров
         for (Book.Genre genre : Book.Genre.values()) {
             booksByGenre.put(genre, new HashSet<>());
         }
     }
 
-    // =========== Методы для работы с книгами ===========
+    // ===========================================================================
+    // Методы для работы с книгами
+    // ===========================================================================
 
     /**
      * Добавляет книгу в библиотеку.
-     * @param book Новая книга
-     * @return true, если книга успешно добавлена
+     *
+     * @param book новая книга
+     * @return {@code true}, если книга успешно добавлена, иначе {@code false}
      */
     public boolean addBook(Book book) {
-        if (!booksByIsbn.containsKey(book.getIsbn())) {
-            booksByIsbn.put(book.getIsbn(), book);
-
-            // Добавляем книгу в соответствующий жанр
-            booksByGenre.get(book.getGenre()).add(book);
-
-            // Добавляем книгу в индекс авторов
-            for (String author : book.getAuthors()) {
-                booksByAuthor.computeIfAbsent(author, a -> new ArrayList<>()).add(book);
-            }
-
-            return true;
+        if (booksByIsbn.containsKey(book.getIsbn())) {
+            return false;
         }
-        return false;
+
+        booksByIsbn.put(book.getIsbn(), book);
+        booksByGenre.get(book.getGenre()).add(book);
+
+        for (String author : book.getAuthors()) {
+            booksByAuthor
+                    .computeIfAbsent(author, key -> new ArrayList<>())
+                    .add(book);
+        }
+
+        return true;
     }
 
     /**
-     * Получает книгу по её ISBN.
+     * Возвращает книгу по ISBN.
+     *
      * @param isbn ISBN книги
-     * @return Книга или null, если книга не найдена
+     * @return объект Book или {@code null}, если не найдено
      */
     public Book getBookByIsbn(String isbn) {
         return booksByIsbn.get(isbn);
     }
 
     /**
-     * Удаляет книгу из библиотеки.
+     * Удаляет книгу из библиотеки по ISBN.
+     *
      * @param isbn ISBN книги
-     * @return true, если книга успешно удалена
+     * @return {@code true}, если книга удалена, иначе {@code false}
      */
     public boolean removeBook(String isbn) {
-        Book bookToRemove = booksByIsbn.remove(isbn);
-        if (bookToRemove != null) {
-            // Убираем книгу из соответствующего жанра
-            booksByGenre.get(bookToRemove.getGenre()).remove(bookToRemove);
-
-            // Убираем книгу из индексов авторов
-            for (String author : bookToRemove.getAuthors()) {
-                List<Book> booksOfAuthor = booksByAuthor.get(author);
-                if (booksOfAuthor != null) {
-                    booksOfAuthor.remove(bookToRemove);
-
-                    // Если у автора больше нет книг, удаляем самого автора
-                    if (booksOfAuthor.isEmpty()) {
-                        booksByAuthor.remove(author);
-                    }
-                }
-            }
-
-            return true;
+        Book removed = booksByIsbn.remove(isbn);
+        if (removed == null) {
+            return false;
         }
-        return false;
+
+        booksByGenre.get(removed.getGenre()).remove(removed);
+        for (String author : removed.getAuthors()) {
+            List<Book> byAuthor = booksByAuthor.get(author);
+            byAuthor.remove(removed);
+            if (byAuthor.isEmpty()) {
+                booksByAuthor.remove(author);
+            }
+        }
+
+        return true;
     }
 
     /**
-     * Возвращает список всех книг в библиотеке.
-     * @return Список всех книг
+     * Возвращает все книги в библиотеке.
+     *
+     * @return коллекция всех книг
      */
     public Collection<Book> getAllBooks() {
         return booksByIsbn.values();
     }
 
     /**
-     * Возвращает список книг выбранного жанра.
-     * @param genre Желаемый жанр
-     * @return Список книг указанного жанра
+     * Возвращает все книги заданного жанра.
+     *
+     * @param genre жанр
+     * @return список книг указанного жанра
      */
     public List<Book> getBooksByGenre(Book.Genre genre) {
         return new ArrayList<>(booksByGenre.get(genre));
     }
 
     /**
-     * Возвращает список книг указанного автора.
-     * @param author Название автора
-     * @return Список книг данного автора
+     * Возвращает все книги указанного автора.
+     *
+     * @param author имя автора
+     * @return список книг данного автора
      */
     public List<Book> getBooksByAuthor(String author) {
         return booksByAuthor.getOrDefault(author, Collections.emptyList());
     }
 
     /**
-     * Производит поиск книг по фрагменту названия.
-     * @param titlePart Частичная строка названия
-     * @return Список книг, содержащих указанное название
+     * Ищет книги по части названия.
+     *
+     * @param titlePart часть строки названия
+     * @return список книг, в названии которых встречается подстрока
      */
     public List<Book> searchBooksByTitle(String titlePart) {
         return booksByIsbn.values().stream()
@@ -134,8 +154,9 @@ public class LibraryManager {
     }
 
     /**
-     * Возвращает список доступных книг.
-     * @return Список доступных книг
+     * Возвращает доступные для выдачи книги.
+     *
+     * @return список доступных книг
      */
     public List<Book> getAvailableBooks() {
         return booksByIsbn.values().stream()
@@ -144,9 +165,10 @@ public class LibraryManager {
     }
 
     /**
-     * Сортирует список книг по названию.
-     * @param books Список книг для сортировки
-     * @return Отсортированный список книг
+     * Сортирует переданный список книг по названию в алфавитном порядке.
+     *
+     * @param books список для сортировки
+     * @return новый отсортированный список
      */
     public List<Book> sortBooksByTitle(List<Book> books) {
         return books.stream()
@@ -155,9 +177,10 @@ public class LibraryManager {
     }
 
     /**
-     * Сортирует список книг по году публикации (от новых к старым).
-     * @param books Список книг для сортировки
-     * @return Отсортированный список книг
+     * Сортирует переданный список книг по году публикации (от новых к старым).
+     *
+     * @param books список для сортировки
+     * @return новый отсортированный список
      */
     public List<Book> sortBooksByPublicationYear(List<Book> books) {
         return books.stream()
@@ -166,9 +189,10 @@ public class LibraryManager {
     }
 
     /**
-     * Сортирует список книг по доступности (сперва доступные).
-     * @param books Список книг для сортировки
-     * @return Отсортированный список книг
+     * Сортирует переданный список книг по доступности (сначала доступные).
+     *
+     * @param books список для сортировки
+     * @return новый отсортированный список
      */
     public List<Book> sortBooksByAvailability(List<Book> books) {
         return books.stream()
@@ -176,97 +200,109 @@ public class LibraryManager {
                 .collect(Collectors.toList());
     }
 
-    // =========== Методы для работы с читателями ===========
+    // ===========================================================================
+    // Методы для работы с читателями
+    // ===========================================================================
 
     /**
-     * Добавляет нового читателя в библиотеку.
-     * @param reader Новый читатель
-     * @return true, если читатель успешно добавлен
+     * Регистрирует нового читателя.
+     *
+     * @param reader объект Reader
+     * @return {@code true}, если читатель добавлен, иначе {@code false}
      */
     public boolean addReader(Reader reader) {
-        if (!readersById.containsKey(reader.getId())) {
-            readersById.put(reader.getId(), reader);
-            return true;
+        if (readersById.containsKey(reader.getId())) {
+            return false;
         }
-        return false;
+        readersById.put(reader.getId(), reader);
+        return true;
     }
 
     /**
-     * Получает информацию о читателе по его ID.
+     * Возвращает читателя по ID.
+     *
      * @param readerId ID читателя
-     * @return Читатель или null, если читатель не найден
+     * @return объект Reader или {@code null}, если не найден
      */
     public Reader getReaderById(String readerId) {
         return readersById.get(readerId);
     }
 
     /**
-     * Удаляет читателя из библиотеки.
+     * Удаляет читателя по ID.
+     *
      * @param readerId ID читателя
-     * @return true, если читатель успешно удалён
+     * @return {@code true}, если удалён, иначе {@code false}
      */
     public boolean removeReader(String readerId) {
         return readersById.remove(readerId) != null;
     }
 
     /**
-     * Возвращает список всех зарегистрированных читателей.
-     * @return Список читателей
+     * Возвращает всех зарегистрированных читателей.
+     *
+     * @return коллекция читателей
      */
     public Collection<Reader> getAllReaders() {
         return readersById.values();
     }
 
-    // =========== Методы для выдачи и возврата книг ===========
+    // ===========================================================================
+    // Методы для выдачи и возврата книг
+    // ===========================================================================
 
     /**
-     * Выдает книгу указанному читателю.
-     * @param isbn ISBN книги
+     * Выдаёт книгу читателю на заданный срок.
+     *
+     * @param isbn     ISBN книги
      * @param readerId ID читателя
-     * @param daysСрок, на который выдается книга
-     * @return true, если книга успешно выдана
+     * @param days     срок в днях
+     * @return {@code true}, если выдача успешна, иначе {@code false}
      */
     public boolean borrowBook(String isbn, String readerId, int days) {
         Book book = booksByIsbn.get(isbn);
-        if (book != null && book.isAvailable()) {
-            book.setAvailable(false);
-            Borrowing borrowing = new Borrowing(isbn, readerId, LocalDate.now(), LocalDate.now().plusDays(days));
-            borrowings.add(borrowing);
-            return true;
+        if (book == null || !book.isAvailable()) {
+            return false;
         }
-        return false;
+        book.setAvailable(false);
+        Borrowing b = new Borrowing(isbn, readerId, LocalDate.now(), LocalDate.now().plusDays(days));
+        borrowings.add(b);
+        return true;
     }
 
     /**
-     * Осуществляет возврат книги.
-     * @param isbn ISBN книги
+     * Возвращает книгу от читателя.
+     *
+     * @param isbn     ISBN книги
      * @param readerId ID читателя
-     * @return true, если книга успешно возвращена
+     * @return {@code true}, если возврат успешен, иначе {@code false}
      */
     public boolean returnBook(String isbn, String readerId) {
-        Optional<Borrowing> borrowingOpt = borrowings.stream()
+        Optional<Borrowing> opt = borrowings.stream()
                 .filter(b -> b.getIsbn().equals(isbn) && b.getReaderId().equals(readerId))
                 .findFirst();
-        if (borrowingOpt.isPresent()) {
-            Borrowing borrowing = borrowingOpt.get();
-            borrowing.setReturnDate(LocalDate.now()); // Устанавливаем дату возврата
-            booksByIsbn.get(isbn).setAvailable(true); // Доступность книги восстанавливаем
-            return true;
+        if (!opt.isPresent()) {
+            return false;
         }
-        return false;
+        Borrowing b = opt.get();
+        b.setReturnDate(LocalDate.now());
+        booksByIsbn.get(isbn).setAvailable(true);
+        return true;
     }
 
     /**
-     * Возвращает список всех текущих выдач книг.
-     * @return Список выдач
+     * Возвращает историю всех выдач.
+     *
+     * @return список Borrowing
      */
     public List<Borrowing> getAllBorrowings() {
         return borrowings;
     }
 
     /**
-     * Возвращает список всех просроченных выдач.
-     * @return Список просроченных выдач
+     * Возвращает все просроченные (и ещё не возвращённые) выдачи.
+     *
+     * @return список просроченных выдач
      */
     public List<Borrowing> getOverdueBorrowings() {
         return borrowings.stream()
@@ -275,9 +311,10 @@ public class LibraryManager {
     }
 
     /**
-     * Возвращает историю выдач для конкретного читателя.
+     * Возвращает историю выдач по читателю.
+     *
      * @param readerId ID читателя
-     * @return Список выдач для данного читателя
+     * @return список выдач данного читателя
      */
     public List<Borrowing> getBorrowingsByReader(String readerId) {
         return borrowings.stream()
@@ -285,10 +322,11 @@ public class LibraryManager {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Возвращает историю выдач для конкретной книги.
+    /**getReadersWithOverdueBooks
+     * Возвращает историю выдач по книге.
+     *
      * @param isbn ISBN книги
-     * @return Список выдач для данной книги
+     * @return список выдач данной книги
      */
     public List<Borrowing> getBorrowingsByBook(String isbn) {
         return borrowings.stream()
@@ -297,168 +335,133 @@ public class LibraryManager {
     }
 
     /**
-     * Продляет срок аренды книги.
-     * @param isbn ISBN книги
-     * @param readerId ID читателя
-     * @param extraDays Дополнительные дни аренды
-     * @return true, если срок успешно продлён
+     * Продлевает срок возврата книги.
+     *
+     * @param isbn       ISBN книги
+     * @param readerId   ID читателя
+     * @param extraDays  дополнительное число дней
+     * @return {@code true}, если продление выполнено, иначе {@code false}
      */
     public boolean extendBorrowingPeriod(String isbn, String readerId, int extraDays) {
-        Optional<Borrowing> borrowingOpt = borrowings.stream()
+        Optional<Borrowing> opt = borrowings.stream()
                 .filter(b -> b.getIsbn().equals(isbn) && b.getReaderId().equals(readerId))
                 .findFirst();
-        if (borrowingOpt.isPresent()) {
-            Borrowing borrowing = borrowingOpt.get();
-            borrowing.setDueDate(borrowing.getDueDate().plusDays(extraDays)); // Изменяем дату возврата
-            return true;
+        if (!opt.isPresent()) {
+            return false;
         }
-        return false;
+        Borrowing b = opt.get();
+        b.setDueDate(b.getDueDate().plusDays(extraDays));
+        return true;
     }
 
-    // =========== Методы для сбора статистики ===========
+    // ===========================================================================
+    // Методы для статистики
+    // ===========================================================================
 
     /**
-     * Собирает статистику по жанрам: количество книг по каждому жанру.
-     * @return Карта "жанр -> количество книг"
+     * Считает, сколько книг в каждом жанре.
+     *
+     * @return Map жанр → количество книг
      */
     public Map<Book.Genre, Integer> getGenreStatistics() {
         return booksByGenre.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().size()));
+                .collect(Collectors.toMap(
+                        Entry::getKey,
+                        e -> e.getValue().size()
+                ));
     }
 
     /**
-     * Возвращает топ популярных книг (по количеству выдач).
-     * @param topN Сколько лучших книг вернуть
-     * @return Топ популярных книг
+     * Возвращает топ N популярных книг (по количеству выдач).
+     *
+     * @param topN сколько вернуть
+     * @return список пар (Book, count)
      */
-    public List<Map.Entry<Book, Integer>> getTopPopularBooks(int topN) {
-        // Сначала считаем количество выдач по ISBN
+    public List<Entry<Book, Integer>> getTopPopularBooks(int topN) {
         Map<String, Long> isbnCounts = borrowings.stream()
                 .collect(Collectors.groupingBy(Borrowing::getIsbn, Collectors.counting()));
-
-        // Преобразуем map ISBN->frequency в map Book->frequency
         Map<Book, Integer> bookCounts = isbnCounts.entrySet().stream()
                 .collect(Collectors.toMap(
-                        entry -> getBookByIsbn(entry.getKey()), // Книга по ISBN
-                        entry -> entry.getValue().intValue() // Частота
+                        e -> getBookByIsbn(e.getKey()),
+                        e -> e.getValue().intValue()
                 ));
-
-        // Сортируем и ограничиваем результат
         return bookCounts.entrySet().stream()
-                .sorted(Map.Entry.<Book, Integer>comparingByValue().reversed())
+                .sorted(Entry.<Book, Integer>comparingByValue().reversed())
                 .limit(topN)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Возвращает топ активных читателей (по количеству взятий книг).
-     * @param topN Сколько лучших читателей вернуть
-     * @return Топ активных читателей
+     * Возвращает топ N активных читателей (по количеству взятых книг).
+     *
+     * @param topN сколько вернуть
+     * @return список пар (Reader, count)
      */
-    public List<Map.Entry<Reader, Integer>> getTopActiveReaders(int topN) {
+    public List<Entry<Reader, Integer>> getTopActiveReaders(int topN) {
         Map<Reader, Integer> readerCounts = borrowings.stream()
-                .map(Borrowing::getReaderId)
-                .collect(Collectors.groupingBy(this::getReaderById, Collectors.summingInt(i -> 1)));
-
+                .collect(Collectors.groupingBy(
+                        b -> getReaderById(b.getReaderId()),
+                        Collectors.summingInt(b -> 1)
+                ));
         return readerCounts.entrySet().stream()
-                .sorted(Map.Entry.<Reader, Integer>comparingByValue().reversed())
+                .sorted(Entry.<Reader, Integer>comparingByValue().reversed())
                 .limit(topN)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Находит читателей, которые имеют просроченные книги.
-     * @return Список читателей с просроченными книгами
+     * Находит читателей с хотя бы одной просроченной выдачей.
+     *
+     * @return список читателей
      */
     public List<Reader> findReadersWithOverdueBooks() {
-        Set<String> overdueReaderIds = borrowings.stream()
+        return borrowings.stream()
                 .filter(Borrowing::isOverdue)
-                .map(Borrowing::getReaderId)
-                .collect(Collectors.toSet());
-
-        return overdueReaderIds.stream()
-                .map(readersById::get)
+                .map(b -> getReaderById(b.getReaderId()))
+                .distinct()
                 .collect(Collectors.toList());
     }
 
-    // ======= Вспомогательные приватные методы =======
+    // ===========================================================================
+    // Итераторы по выборкам
+    // ===========================================================================
 
-    private void updateBooksByAuthor(Book book) {
-        for (String author : book.getAuthors()) {
-            booksByAuthor.computeIfAbsent(author, key -> new ArrayList<>()).add(book);
-        }
-    }
-
-    private void removeFromBooksByAuthor(Book book) {
-        for (String author : book.getAuthors()) {
-            List<Book> booksOfAuthor = booksByAuthor.get(author);
-            if (booksOfAuthor != null) {
-                booksOfAuthor.remove(book);
-
-                // Если у автора больше нет книг, удаляем его из карты
-                if (booksOfAuthor.isEmpty()) {
-                    booksByAuthor.remove(author);
-                }
-            }
-        }
-    }
-    public List<Reader> getReadersWithOverdueBooks() {
-        List<Reader> overdueReaders = new ArrayList<>();
-
-        // Проходим по всем выдачам книг
-        for (Borrowing borrowing : borrowings) {
-            // Проверяем, является ли выдача просроченной и не возвращённой
-            if (borrowing.isOverdue() && !borrowing.isReturned()) {
-                // Добавляем читателя в список, если у него есть хотя бы одна просроченная книга
-                overdueReaders.add(getReaderById(borrowing.getReaderId()));
-            }
-        }
-
-        return overdueReaders;
-    }
-
+    /**
+     * Итератор книг по жанру и году.
+     *
+     * @param genre жанр
+     * @param year  год публикации
+     * @return итератор по найденным книгам
+     */
     public Iterator<Book> getBooksByGenreAndYearIterator(Book.Genre genre, int year) {
-        // Создаем список, куда поместим подходящие книги
-        List<Book> filteredBooks = new ArrayList<>();
-
-        // Проходим по всем книгам и фильтруем по жанру и году
-        for (Book book : booksByIsbn.values()) {
-            if (book.getGenre() == genre && book.getPublicationYear() == year) {
-                filteredBooks.add(book);
-            }
-        }
-
-        // Возвращаем итератор по подобранным книгам
-        return filteredBooks.iterator();
+        List<Book> filtered = booksByIsbn.values().stream()
+                .filter(b -> b.getGenre() == genre && b.getPublicationYear() == year)
+                .collect(Collectors.toList());
+        return filtered.iterator();
     }
+
+    /**
+     * Итератор книг, у которых не менее {@code minAuthorsCount} авторов.
+     *
+     * @param minAuthorsCount минимальное число авторов
+     * @return итератор по найденным книгам
+     */
     public Iterator<Book> getBooksWithMultipleAuthorsIterator(int minAuthorsCount) {
-        // Создаем список, куда помещаем книги с требуемым числом авторов
-        List<Book> filteredBooks = new ArrayList<>();
-
-        // Перебираем все книги и фильтруем по минимальному количеству авторов
-        for (Book book : booksByIsbn.values()) {
-            if (book.getAuthors().size() >= minAuthorsCount) {
-                filteredBooks.add(book);
-            }
-        }
-
-        // Возвращаем итератор по подобранным книгам
-        return filteredBooks.iterator();
+        List<Book> filtered = booksByIsbn.values().stream()
+                .filter(b -> b.getAuthors().size() >= minAuthorsCount)
+                .collect(Collectors.toList());
+        return filtered.iterator();
     }
 
+    /**
+     * Итератор по просроченным и ещё не возвращённым выдачам.
+     *
+     * @return итератор по просроченным выдачам
+     */
     public Iterator<Borrowing> getOverdueBorrowingsIterator() {
-        // Создаем список просроченных выдач
-        List<Borrowing> overdueBorrowings = new ArrayList<>();
-
-        // Проверяем все записи о выдаче книг
-        for (Borrowing borrowing : borrowings) {
-            // Если книга просрочена и не возвращена
-            if (borrowing.isOverdue() && !borrowing.isReturned()) {
-                overdueBorrowings.add(borrowing);
-            }
-        }
-
-        // Возвращаем итератор по просроченным выдачам
-        return overdueBorrowings.iterator();
+        List<Borrowing> filtered = borrowings.stream()
+                .filter(b -> b.isOverdue() && !b.isReturned())
+                .collect(Collectors.toList());
+        return filtered.iterator();
     }
 }
