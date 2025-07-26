@@ -2,14 +2,17 @@ package ru.mentee.power.conditions;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * Юнит-тесты для класса {@link RentCar}.
+ */
 public class CarRentalTest {
 
     private final PrintStream standardOut = System.out;
@@ -23,43 +26,42 @@ public class CarRentalTest {
     @AfterEach
     public void tearDown() {
         System.setOut(standardOut);
-    }
-
-    @Test
-    @DisplayName("Тест аренды автомобиля с подходящим возрастом")
-    public void testRentCar_eligible() {
-        RentCar.age = 18;
-        RentCar.rentCar();
-        assertEquals("Вы можете арендовать автомобиль" + System.lineSeparator(), outputStreamCaptor.toString());
         outputStreamCaptor.reset();
     }
 
     @Test
-    @DisplayName("Тест аренды автомобиля с неподходящим возрастом")
-    public void testRentCar_notEligible() {
-        RentCar.age = 17;
-        RentCar.rentCar();
-        assertEquals("Вы не можете арендовать автомобиль" + System.lineSeparator(), outputStreamCaptor.toString());
-        outputStreamCaptor.reset();
+    @DisplayName("rentCarWithIf: возраст 18 — можно арендовать")
+    public void testRentCarWithIfEligible() {
+        RentCar.setUserAge(18);
+        RentCar.rentCarWithIf();
+        String expected = "Вы можете арендовать автомобиль." + System.lineSeparator();
+        assertEquals(expected, outputStreamCaptor.toString());
     }
 
     @Test
-    @DisplayName("Тест аренды автомобиля 2 с подходящим возрастом")
-    public void testRentCar2_eligible() {
-        RentCar.age = 18;
-        RentCar.rentCar2();
-        assertEquals("Вы можете арендовать автомобиль" + System.lineSeparator(), outputStreamCaptor.toString());
-        outputStreamCaptor.reset();
+    @DisplayName("rentCarWithIf: возраст 17 — нельзя арендовать")
+    public void testRentCarWithIfNotEligible() {
+        RentCar.setUserAge(17);
+        RentCar.rentCarWithIf();
+        String expected = "Вы не можете арендовать автомобиль." + System.lineSeparator();
+        assertEquals(expected, outputStreamCaptor.toString());
     }
 
     @Test
-    @DisplayName("Тест аренды автомобиля 2 с неподходящим возрастом")
-    public void testRentCar2_notEligible() {
-        RentCar.age = 17;
-        RentCar.rentCar2();
-        assertEquals("Вы не можете арендовать автомобиль" + System.lineSeparator(), outputStreamCaptor.toString());
-        outputStreamCaptor.reset();
+    @DisplayName("rentCarWithTernary: возраст 18 — можно арендовать")
+    public void testRentCarWithTernaryEligible() {
+        RentCar.setUserAge(18);
+        RentCar.rentCarWithTernary();
+        String expected = "Вы можете арендовать автомобиль." + System.lineSeparator();
+        assertEquals(expected, outputStreamCaptor.toString());
+    }
+
+    @Test
+    @DisplayName("rentCarWithTernary: возраст 17 — нельзя арендовать")
+    public void testRentCarWithTernaryNotEligible() {
+        RentCar.setUserAge(17);
+        RentCar.rentCarWithTernary();
+        String expected = "Вы не можете арендовать автомобиль." + System.lineSeparator();
+        assertEquals(expected, outputStreamCaptor.toString());
     }
 }
-
-

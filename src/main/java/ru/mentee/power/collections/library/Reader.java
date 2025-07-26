@@ -15,9 +15,9 @@ public class Reader {
     /**
      * Конструктор класса Reader.
      *
-     * @param id      Уникальный идентификатор читателя
-     * @param name    Имя читателя
-     * @param email   Электронная почта читателя
+     * @param id       Уникальный идентификатор читателя
+     * @param name     Имя читателя
+     * @param email    Электронная почта читателя
      * @param category Категория читателя (STUDENT, TEACHER, REGULAR, VIP)
      */
     public Reader(String id, String name, String email, ReaderCategory category) {
@@ -60,17 +60,23 @@ public class Reader {
     /**
      * Переопределенный метод equals().
      * Читатели считаются равными, если у них одинаковый ID.
+     *
+     * @param o объект для сравнения
+     * @return true если равны, иначе false
      */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         Reader reader = (Reader) o;
         return Objects.equals(id, reader.id);
     }
 
     /**
      * Переопределенный метод hashCode().
+     *
+     * @return hash код по id
      */
     @Override
     public int hashCode() {
@@ -79,6 +85,8 @@ public class Reader {
 
     /**
      * Переопределенный метод toString() для удобного вывода информации о классе.
+     *
+     * @return строковое представление объекта
      */
     @Override
     public String toString() {

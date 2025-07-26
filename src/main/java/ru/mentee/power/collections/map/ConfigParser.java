@@ -1,29 +1,37 @@
 package ru.mentee.power.collections.map;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
- * Класс для работы с конфигурационными данными в формате "ключ=значение"
+ * Класс для работы с конфигурационными данными в формате "ключ=значение".
  */
 public class ConfigParser {
 
     private final Map<String, String> configMap;
 
     /**
-     * Создает пустой объект ConfigParser
+     * Создает пустой объект ConfigParser.
      */
     public ConfigParser() {
         this.configMap = new LinkedHashMap<>();
     }
 
     /**
-     * Парсит строку конфигурации в формате "ключ=значение"
+     * Парсит строку конфигурации в формате "ключ=значение".
      * Каждая настройка должна быть на отдельной строке.
-     * Строки, начинающиеся с # считаются комментариями и игнорируются.
+     * Строки, начинающиеся с #, считаются комментариями и игнорируются.
      * Пустые строки игнорируются.
      *
-     * @param configString строка конфигурации
-     * @throws IllegalArgumentException если configString == null
+     * @param configString строка конфигурации (не {@code null})
+     * @throws IllegalArgumentException если {@code configString} равен {@code null} либо
+     *                                  встречена неверная запись без символа '='
      */
     public void parseConfig(String configString) {
         if (configString == null) {
@@ -40,8 +48,8 @@ public class ConfigParser {
             int eqPos = raw.indexOf('=');
             if (eqPos < 0) {
                 throw new IllegalArgumentException(
-                        String.format("Line %d is not a valid key=value pair: '%s'", i+1, lines[i])
-                );
+                        String.format(
+                                "Line %d is not a valid key=value pair: '%s'", i + 1, lines[i]));
             }
 
             String key = raw.substring(0, eqPos).trim();
@@ -49,8 +57,7 @@ public class ConfigParser {
 
             if (key.isEmpty()) {
                 throw new IllegalArgumentException(
-                        String.format("Line %d has an empty key: '%s'", i+1, lines[i])
-                );
+                        String.format("Line %d has an empty key: '%s'", i + 1, lines[i]));
             }
 
             configMap.put(key, value);
@@ -58,7 +65,7 @@ public class ConfigParser {
     }
 
     /**
-     * Преобразует текущую конфигурацию в строку
+     * Преобразует текущую конфигурацию в строку.
      *
      * @return строка конфигурации в формате "ключ=значение" с разделителями новой строки
      */
@@ -70,7 +77,7 @@ public class ConfigParser {
                     .append(entry.getValue())
                     .append('\n');
         }
-        // удалим последний перевод строки, если есть
+        // удалим последний перевод строки, если он есть
         if (sb.length() > 0) {
             sb.setLength(sb.length() - 1);
         }
@@ -78,11 +85,11 @@ public class ConfigParser {
     }
 
     /**
-     * Получает значение по ключу
+     * Получает значение по ключу.
      *
-     * @param key ключ
-     * @return значение или null, если ключ не найден
-     * @throws IllegalArgumentException если ключ null
+     * @param key ключ (не {@code null})
+     * @return значение или {@code null}, если ключ не найден
+     * @throws IllegalArgumentException если {@code key} равен {@code null}
      */
     public String getValue(String key) {
         if (key == null) {
@@ -92,12 +99,12 @@ public class ConfigParser {
     }
 
     /**
-     * Получает значение по ключу или значение по умолчанию, если ключ не найден
+     * Получает значение по ключу или возвращает значение по умолчанию.
      *
-     * @param key ключ
+     * @param key          ключ (не {@code null})
      * @param defaultValue значение по умолчанию
-     * @return значение или defaultValue, если ключ не найден
-     * @throws IllegalArgumentException если ключ null
+     * @return значение или {@code defaultValue}, если ключ не найден
+     * @throws IllegalArgumentException если {@code key} равен {@code null}
      */
     public String getValue(String key, String defaultValue) {
         if (key == null) {
@@ -107,12 +114,12 @@ public class ConfigParser {
     }
 
     /**
-     * Устанавливает значение для ключа
+     * Устанавливает значение для ключа.
      *
-     * @param key ключ
-     * @param value значение
-     * @return предыдущее значение или null, если ключ не существовал
-     * @throws IllegalArgumentException если ключ или значение null
+     * @param key   ключ (не {@code null})
+     * @param value значение (не {@code null})
+     * @return предыдущее значение или {@code null}, если ключ не существовал
+     * @throws IllegalArgumentException если {@code key} или {@code value} равны {@code null}
      */
     public String setValue(String key, String value) {
         if (key == null) {
@@ -125,10 +132,10 @@ public class ConfigParser {
     }
 
     /**
-     * Удаляет ключ и его значение
+     * Удаляет ключ и его значение.
      *
      * @param key ключ
-     * @return true, если ключ существовал и был удален
+     * @return {@code true}, если ключ существовал и был удален
      */
     public boolean removeKey(String key) {
         if (key == null) {
@@ -138,10 +145,10 @@ public class ConfigParser {
     }
 
     /**
-     * Проверяет наличие ключа
+     * Проверяет наличие ключа.
      *
      * @param key ключ
-     * @return true, если ключ существует
+     * @return {@code true}, если ключ существует
      */
     public boolean containsKey(String key) {
         if (key == null) {
@@ -151,32 +158,36 @@ public class ConfigParser {
     }
 
     /**
-     * Возвращает все ключи
+     * Возвращает все ключи.
      *
-     * @return множество ключей
+     * @return множество ключей (неизменяемое)
      */
     public Set<String> getKeys() {
         return Collections.unmodifiableSet(configMap.keySet());
     }
 
     /**
-     * Возвращает все пары ключ-значение
+     * Возвращает все пары ключ-значение.
      *
-     * @return карта с парами ключ-значение
+     * @return карта с парами ключ-значение (неизменяемая)
      */
     public Map<String, String> getAll() {
         return Collections.unmodifiableMap(configMap);
     }
 
     /**
-     * Получает целочисленное значение по ключу
+     * Получает целочисленное значение по ключу.
      *
-     * @param key ключ
+     * @param key ключ (не {@code null})
      * @return целое число
-     * @throws NoSuchElementException если ключ не найден
-     * @throws NumberFormatException если значение не является числом
+     * @throws NoSuchElementException   если ключ не найден
+     * @throws NumberFormatException    если значение не является числом
+     * @throws IllegalArgumentException если {@code key} равен {@code null}
      */
     public int getIntValue(String key) {
+        if (key == null) {
+            throw new IllegalArgumentException("key cannot be null");
+        }
         String raw = getValue(key);
         if (raw == null) {
             throw new NoSuchElementException("Key '" + key + "' not found");
@@ -185,15 +196,19 @@ public class ConfigParser {
     }
 
     /**
-     * Получает логическое значение по ключу
-     * Строки "true", "yes", "1" (игнорируя регистр) считаются true
-     * Все остальные значения считаются false
+     * Получает логическое значение по ключу.
+     * Строки "true", "yes", "1" (игнорируя регистр) считаются true.
+     * Все остальные значения считаются false.
      *
-     * @param key ключ
+     * @param key ключ (не {@code null})
      * @return логическое значение
-     * @throws NoSuchElementException если ключ не найден
+     * @throws NoSuchElementException   если ключ не найден
+     * @throws IllegalArgumentException если {@code key} равен {@code null}
      */
     public boolean getBooleanValue(String key) {
+        if (key == null) {
+            throw new IllegalArgumentException("key cannot be null");
+        }
         String raw = getValue(key);
         if (raw == null) {
             throw new NoSuchElementException("Key '" + key + "' not found");
@@ -203,10 +218,10 @@ public class ConfigParser {
     }
 
     /**
-     * Получает список значений, разделенных запятыми
+     * Получает список значений, разделенных запятыми.
      *
      * @param key ключ
-     * @return список значений или пустой список, если ключ не найден
+     * @return список значений или пустой список, если ключ не найден или значение пустое
      */
     public List<String> getListValue(String key) {
         String raw = getValue(key);
@@ -222,14 +237,14 @@ public class ConfigParser {
     }
 
     /**
-     * Очищает все настройки
+     * Очищает все настройки.
      */
     public void clear() {
         configMap.clear();
     }
 
     /**
-     * Возвращает количество пар ключ-значение
+     * Возвращает количество пар ключ-значение.
      *
      * @return количество пар
      */
