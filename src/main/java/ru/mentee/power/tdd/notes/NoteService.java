@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+
 public final class NoteService {
     private final Map<Integer, Note> notes = new HashMap<>();
     private final AtomicInteger nextId = new AtomicInteger(1);
