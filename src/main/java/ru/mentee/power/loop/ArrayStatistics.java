@@ -3,8 +3,14 @@ package ru.mentee.power.loop;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
+/**
+ * Класс для вычисления и логирования статистических показателей массива.
+ */
 public class ArrayStatistics {
+    // Логгер для вывода сообщений
+    private static final Logger logger = Logger.getLogger(ArrayStatistics.class.getName());
 
     // Копия входного массива для безопасного анализа
     private final int[] data;
@@ -77,10 +83,8 @@ public class ArrayStatistics {
         int[] copy = Arrays.copyOf(data, n);
         Arrays.sort(copy);
         if (n % 2 == 1) {
-            // нечётное число элементов
             return copy[n / 2];
         } else {
-            // чётное: среднее двух центральных
             int mid1 = copy[n / 2 - 1];
             int mid2 = copy[n / 2];
             return (mid1 + mid2) / 2.0;
@@ -125,7 +129,6 @@ public class ArrayStatistics {
             double diff = v - mean;
             sumSquaredDiffs += diff * diff;
         }
-        // делим на n для популяционного, на (n-1) — для выборочного
         double variance = sumSquaredDiffs / n;
         return Math.sqrt(variance);
     }
@@ -172,30 +175,30 @@ public class ArrayStatistics {
     }
 
     /**
-     * Выводит на консоль все основные статистические показатели
+     * Выводит в лог все основные статистические показатели
      */
     public void printStatisticsReport() {
-        System.out.println("===== Статистический отчет =====");
-        System.out.println("Размер массива: " + data.length);
-        System.out.println("Минимальное значение: " + findMin());
-        System.out.println("Максимальное значение: " + findMax());
-        System.out.println("Сумма элементов: " + calculateSum());
-        System.out.println("Среднее арифметическое: " + calculateAverage());
-        System.out.println("Медиана: " + calculateMedian());
-        System.out.println("Мода: " + findMode());
-        System.out.println("Стандартное отклонение: " + calculateStandardDeviation());
-        System.out.println("================================");
+        logger.info("===== Статистический отчет =====");
+        logger.info("Размер массива: " + data.length);
+        logger.info("Минимальное значение: " + findMin());
+        logger.info("Максимальное значение: " + findMax());
+        logger.info("Сумма элементов: " + calculateSum());
+        logger.info("Среднее арифметическое: " + calculateAverage());
+        logger.info("Медиана: " + calculateMedian());
+        logger.info("Мода: " + findMode());
+        logger.info("Стандартное отклонение: " + calculateStandardDeviation());
+        logger.info("================================");
     }
 
     public static void main(String[] args) {
         int[] testData = {5, 7, 2, 9, 3, 5, 1, 8, 5, 6};
         ArrayStatistics stats = new ArrayStatistics(testData);
 
-        System.out.println("Исходный массив: " + Arrays.toString(testData));
+        logger.info("Исходный массив: " + Arrays.toString(testData));
         stats.printStatisticsReport();
-        System.out.println("Элементов > 5: " + stats.countGreaterThan(5));
-        System.out.println("Элементов < 5: " + stats.countLessThan(5));
-        System.out.println("Массив содержит 7: " + stats.contains(7));
-        System.out.println("Массив содержит 10: " + stats.contains(10));
+        logger.info("Элементов > 5: " + stats.countGreaterThan(5));
+        logger.info("Элементов < 5: " + stats.countLessThan(5));
+        logger.info("Массив содержит 7: " + stats.contains(7));
+        logger.info("Массив содержит 10: " + stats.contains(10));
     }
 }

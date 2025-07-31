@@ -1,9 +1,15 @@
 package ru.mentee.power.collections.base;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
-public class NumberFilter {
+public final class NumberFilter {
+
+    // Приватный конструктор запрещает создание экземпляров класса
+    private NumberFilter() {
+        throw new AssertionError("Не предназначен для создания экземпляров");
+    }
+
     /**
      * Фильтрует список чисел, оставляя только четные.
      *

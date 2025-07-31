@@ -4,8 +4,14 @@ import java.util.*;
 
 /**
  * Класс для анализа и обработки списков на основе ArrayList.
+ * Utility-класс, содержит только статические методы и не предназначен для инстанцирования.
  */
-public class ArrayListAnalyzer {
+public final class ArrayListAnalyzer {
+
+    // Приватный конструктор, чтобы предотвратить создание экземпляров
+    private ArrayListAnalyzer() {
+        throw new AssertionError("Utility class should not be instantiated");
+    }
 
     /**
      * Фильтрует список строк, оставляя только те, которые начинаются с указанного префикса.
@@ -24,7 +30,6 @@ public class ArrayListAnalyzer {
         }
 
         List<String> result = new ArrayList<>(strings.size());
-        // Цикл для работы с ArrayList
         for (int i = 0, n = strings.size(); i < n; i++) {
             String s = strings.get(i);
             if (s != null && s.startsWith(prefix)) {
@@ -49,7 +54,6 @@ public class ArrayListAnalyzer {
             throw new IllegalArgumentException("Список numbers не может быть пустым");
         }
 
-        // Начинаем с первого элемента
         Integer max = numbers.get(0);
         for (int i = 1, n = numbers.size(); i < n; i++) {
             Integer val = numbers.get(i);
@@ -79,7 +83,6 @@ public class ArrayListAnalyzer {
 
         List<List<T>> result = new ArrayList<>((list.size() + partSize - 1) / partSize);
         for (int i = 0, n = list.size(); i < n; i += partSize) {
-            // Элемент найден и мы возвращаем новый список, чтобы не потерять главный список
             int end = Math.min(n, i + partSize);
             result.add(new ArrayList<>(list.subList(i, end)));
         }
@@ -105,11 +108,7 @@ public class ArrayListAnalyzer {
         while (left < right) {
             T a = list.get(left);
             T b = list.get(right);
-            if (a == null) {
-                if (b != null) {
-                    return false;
-                }
-            } else if (!a.equals(b)) {
+            if (a == null ? b != null : !a.equals(b)) {
                 return false;
             }
             left++;

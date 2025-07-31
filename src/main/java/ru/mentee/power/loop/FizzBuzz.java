@@ -1,47 +1,54 @@
 package ru.mentee.power.loop;
 
+import java.util.logging.Logger;
+
 public class FizzBuzz {
 
+    // Логгер для вывода сообщений
+    private static final Logger logger =
+            Logger.getLogger(FizzBuzz.class.getName());
+
+    /**
+     * Генерирует массив FizzBuzz длиной n
+     *
+     * @param n верхняя граница (числа от 1 до n)
+     * @return массив строк с результатами FizzBuzz
+     */
     public String[] generateFizzBuzz(int n) {
-        // Создаем массив строк длиной n
         String[] result = new String[n];
 
-        // Заполняем массив, обрабатывая каждое число от 1 до n
         for (int index = 1; index <= n; index++) {
             if (index % 3 == 0 && index % 5 == 0) {
-                // Число делится и на 3, и на 5
-                result[index-1] = "FizzBuzz";
+                result[index - 1] = "FizzBuzz";
             } else if (index % 3 == 0) {
-                // Число делится только на 3
-                result[index-1] = "Fizz";
+                result[index - 1] = "Fizz";
             } else if (index % 5 == 0) {
-                // Число делится только на 5
-                result[index-1] = "Buzz";
+                result[index - 1] = "Buzz";
             } else {
-                // Число не делится ни на 3, ни на 5
-                result[index-1] = String.valueOf(index);
+                result[index - 1] = String.valueOf(index);
             }
         }
 
         return result;
     }
 
+    /**
+     * Печатает результаты FizzBuzz в лог
+     *
+     * @param n верхняя граница (числа от 1 до n)
+     */
     public void printFizzBuzz(int n) {
-        // Получаем массив результатов
         String[] results = generateFizzBuzz(n);
-
-        // Выводим каждый элемент в консоль
         for (String result : results) {
-            System.out.println(result);
+            logger.info(result);
         }
     }
+
     public static void main(String[] args) {
-        // Создаем экземпляр класса
         FizzBuzz fizzBuzz = new FizzBuzz();
 
-        // Выводим результаты для n = 15
-        System.out.println("FizzBuzz для чисел от 1 до 30:");
+        logger.info("FizzBuzz для чисел от 1 до 30:");
         fizzBuzz.printFizzBuzz(30);
     }
-
 }
+

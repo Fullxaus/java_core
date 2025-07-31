@@ -1,6 +1,10 @@
 package ru.mentee.power.loop;
 
+import java.util.logging.Logger;
+
 public class BreakExample {
+    // Логгер для вывода сообщений вместо System.out.println
+    private static final Logger logger = Logger.getLogger(BreakExample.class.getName());
 
     public int findFirstNegative(int[] numbers) {
         for (int number : numbers) {
@@ -13,22 +17,22 @@ public class BreakExample {
 
     public static void main(String[] args) {
         int[] numbers = {10, 5, 0, -3, 8, -1};
-        int firstNegative = 0; // Переменная для хранения результата
+        int firstNegative = Integer.MAX_VALUE; // по-умолчанию «не найдено»
 
-        System.out.println("Ищем первое отрицательное число...");
+        logger.info("Ищем первое отрицательное число...");
         for (int number : numbers) {
-            System.out.println("Проверяем: " + number);
+            logger.info("Проверяем: " + number);
             if (number < 0) {
                 firstNegative = number;
-                System.out.println("Нашли! Это " + number);
+                logger.info("Нашли! Это " + number);
                 break; // Выходим из цикла, как только нашли
             }
         }
 
-        if (firstNegative == 0) { // Проверяем, было ли найдено
-            System.out.println("Отрицательных чисел не найдено.");
+        if (firstNegative == Integer.MAX_VALUE) {
+            logger.info("Отрицательных чисел не найдено.");
         } else {
-            System.out.println("Первое найденное отрицательное: " + firstNegative);
+            logger.info("Первое найденное отрицательное: " + firstNegative);
         }
     }
 }

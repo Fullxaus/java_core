@@ -1,16 +1,6 @@
 package ru.mentee.power.collections.set;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -18,8 +8,9 @@ import java.util.stream.Collectors;
  */
 public final class TextAnalyzer {
 
+    // Приватный конструктор, чтобы предотвратить создание экземпляров
     private TextAnalyzer() {
-        // Утилитарный класс не должен инстанцироваться
+        throw new AssertionError("Utility class should not be instantiated");
     }
 
     /**
@@ -34,9 +25,10 @@ public final class TextAnalyzer {
         if (text == null) {
             throw new IllegalArgumentException("text не может быть null");
         }
-        String[] tokens = text.toLowerCase()
+        String[] tokens = text.toLowerCase(Locale.ROOT)
                 .split("[^a-zа-яё0-9]+");
-        Set<String> unique = new HashSet<>();
+
+        Set<String> unique = new HashSet<>(tokens.length);
         for (String w : tokens) {
             if (!w.isEmpty()) {
                 unique.add(w);
@@ -50,7 +42,7 @@ public final class TextAnalyzer {
      *
      * @param text1 первый текст (не {@code null})
      * @param text2 второй текст (не {@code null})
-     * @return множество общих слов в нижнем регистре
+     * @return новое множество общих слов в нижнем регистре
      * @throws IllegalArgumentException если один из параметров равен {@code null}
      */
     public static Set<String> findCommonWords(String text1, String text2) {
@@ -59,8 +51,11 @@ public final class TextAnalyzer {
         }
         Set<String> s1 = findUniqueWords(text1);
         Set<String> s2 = findUniqueWords(text2);
-        s1.retainAll(s2);
-        return s1;
+
+        // Создаём копию s1 и оставляем в ней только те слова, что есть в s2
+        Set<String> result = new HashSet<>(s1);
+        result.retainAll(s2);
+        return result;
     }
 
     /**
@@ -68,7 +63,7 @@ public final class TextAnalyzer {
      *
      * @param text1 первый текст (не {@code null})
      * @param text2 второй текст (не {@code null})
-     * @return множество слов, уникальных для первого текста, в нижнем регистре
+     * @return новое множество слов, уникальных для первого текста, в нижнем регистре
      * @throws IllegalArgumentException если один из параметров равен {@code null}
      */
     public static Set<String> findUniqueWordsInFirstText(String text1, String text2) {
@@ -77,8 +72,11 @@ public final class TextAnalyzer {
         }
         Set<String> s1 = findUniqueWords(text1);
         Set<String> s2 = findUniqueWords(text2);
-        s1.removeAll(s2);
-        return s1;
+
+        // Создаём копию s1 и удаляем из неё все слова из s2
+        Set<String> result = new HashSet<>(s1);
+        result.removeAll(s2);
+        return result;
     }
 
     /**
@@ -98,7 +96,8 @@ public final class TextAnalyzer {
             throw new IllegalArgumentException("n должно быть > 0");
         }
 
-        String[] tokens = text.toLowerCase().split("[^a-zа-яё0-9]+");
+        String[] tokens = text.toLowerCase(Locale.ROOT)
+                .split("[^a-zа-яё0-9]+");
         Map<String, Integer> freq = new HashMap<>();
         for (String w : tokens) {
             if (w.isEmpty()) {
@@ -107,17 +106,13 @@ public final class TextAnalyzer {
             freq.put(w, freq.getOrDefault(w, 0) + 1);
         }
 
-        List<Map.Entry<String, Integer>> entries =
-                new ArrayList<>(freq.entrySet());
+        List<Map.Entry<String, Integer>> entries = new ArrayList<>(freq.entrySet());
         entries.sort((e1, e2) -> {
             int cmp = e2.getValue().compareTo(e1.getValue());
-            if (cmp != 0) {
-                return cmp;
-            }
-            return e1.getKey().compareTo(e2.getKey());
+            return (cmp != 0) ? cmp : e1.getKey().compareTo(e2.getKey());
         });
 
-        Set<String> result = new LinkedHashSet<>();
+        Set<String> result = new LinkedHashSet<>(n);
         for (Map.Entry<String, Integer> entry : entries) {
             if (result.size() >= n) {
                 break;
@@ -148,17 +143,14 @@ public final class TextAnalyzer {
             char[] chars = word.toLowerCase(Locale.ROOT).toCharArray();
             Arrays.sort(chars);
             String key = new String(chars);
+
             groups.computeIfAbsent(key, k -> new TreeSet<>())
                     .add(word);
         }
 
-        Set<Set<String>> result = new HashSet<>();
-        for (Set<String> group : groups.values()) {
-            if (group.size() > 1) {
-                result.add(group);
-            }
-        }
-        return result;
+        return groups.values().stream()
+                .filter(g -> g.size() > 1)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -234,28 +226,21 @@ public final class TextAnalyzer {
             Set<String> set = impl.getValue();
 
             long start = System.nanoTime();
-            for (String w : words) {
-                set.add(w);
-            }
+            for (String w : words) set.add(w);
             long tAdd = System.nanoTime() - start;
 
             start = System.nanoTime();
-            for (String w : words) {
-                set.contains(w);
-            }
+            for (String w : words) set.contains(w);
             long tContains = System.nanoTime() - start;
 
             start = System.nanoTime();
-            for (String w : words) {
-                set.remove(w);
-            }
+            for (String w : words) set.remove(w);
             long tRemove = System.nanoTime() - start;
 
             results.put(name + ":add", tAdd);
             results.put(name + ":contains", tContains);
             results.put(name + ":remove", tRemove);
         }
-
         return results;
     }
 }

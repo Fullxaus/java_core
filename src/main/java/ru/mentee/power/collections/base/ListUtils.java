@@ -18,6 +18,11 @@ public class ListUtils {
      * @param list2 второй список строк
      * @return новый список, содержащий все уникальные элементы из обоих списков
      */
+
+    private ListUtils(){
+        throw new AssertionError("Не предназначен для создания экземпляров");
+    }
+
     public static List<String> mergeLists(
             final List<String> list1,
             final List<String> list2) {

@@ -1,8 +1,12 @@
 package ru.mentee.power.loop;
 
-import java.util.Scanner; // Импортируем Scanner
+import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class DoWhileLoopExample {
+    // Логгер для вывода сообщений вместо System.out.println
+    private static final Logger logger = Logger.getLogger(DoWhileLoopExample.class.getName());
+
     public int repeatAction(String[] answers) {
         int count = 0;
         for (String answer : answers) {
@@ -13,17 +17,18 @@ public class DoWhileLoopExample {
         }
         return count;
     }
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         String answer;
 
         do {
-            System.out.println("Выполняем важное действие...");
-            System.out.print("Повторить? (да/нет): ");
+            logger.info("Выполняем важное действие...");
+            logger.info("Повторить? (да/нет): ");
             answer = scanner.nextLine();
-        } while (answer.equalsIgnoreCase("да")); // Повторяем, пока ответ "да" (игнорируя регистр)
+        } while (answer.equalsIgnoreCase("да"));
 
-        System.out.println("Завершение.");
-        scanner.close(); // Не забываем закрыть Scanner
+        logger.info("Завершение.");
+        scanner.close();
     }
 }
