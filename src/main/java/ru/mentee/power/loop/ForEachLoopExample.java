@@ -1,13 +1,20 @@
 package ru.mentee.power.loop;
 
+import java.util.logging.Logger;
+
 public class ForEachLoopExample {
+
+    // Логгер для вывода сообщений
+    private static final Logger logger =
+            Logger.getLogger(ForEachLoopExample.class.getName());
+
     public static void main(String[] args) {
         String[] fruits = {"Яблоко", "Банан", "Апельсин"};
 
-        System.out.println("Фрукты (без индекса):");
+        logger.info("Фрукты (без индекса):");
         // Перебираем массив с помощью for-each
         for (String fruit : fruits) {
-            System.out.println(fruit);
+            logger.info(fruit);
         }
     }
 }

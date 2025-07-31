@@ -1,24 +1,30 @@
 package ru.mentee.power.methods;
 
+import java.util.List;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 public class ReferenceParameterDemo {
+    private static final Logger logger = Logger.getLogger(ReferenceParameterDemo.class.getName());
+
     public static void main(String[] args) {
-        ArrayList<String> myList = new ArrayList<>();
+        // вместо ArrayList<String> — интерфейс List<String>
+        List<String> myList = new ArrayList<>();
         myList.add("Первый элемент");
 
-        System.out.println("До вызова метода: myList = " + myList);
-        System.out.println("До вызова метода: размер списка = " + myList.size());
+        logger.info("До вызова метода: myList = " + myList);
+        logger.info("До вызова метода: размер списка = " + myList.size());
 
         addItem(myList);
 
-        System.out.println("После вызова метода: myList = " + myList);
-        System.out.println("После вызова метода: размер списка = " + myList.size());
+        logger.info("После вызова метода: myList = " + myList);
+        logger.info("После вызова метода: размер списка = " + myList.size());
     }
 
-    public static void addItem(ArrayList<String> list) {
-        System.out.println("В начале метода: list = " + list);
+    // параметр тоже объявляем через интерфейс List, а не конкретный ArrayList
+    public static void addItem(List<String> list) {
+        logger.info("В начале метода: list = " + list);
         list.add("Новый элемент");
-        System.out.println("После изменения в методе: list = " + list);
+        logger.info("После изменения в методе: list = " + list);
     }
 }

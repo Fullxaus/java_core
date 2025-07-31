@@ -17,6 +17,12 @@ public class CollectionAnalyzer {
      * @param minLength минимальная длина
      * @return список строк, длина которых строго больше {@code minLength}
      */
+
+    // Приватный конструктор запрещает создание экземпляров класса
+    private  CollectionAnalyzer() {
+        throw new AssertionError("Не предназначен для создания экземпляров");
+    }
+
     public static List<String> findLongStrings(
             final Collection<String> strings,
             final int minLength) {
