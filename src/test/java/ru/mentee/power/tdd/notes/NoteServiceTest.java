@@ -19,7 +19,8 @@ public class NoteServiceTest {
 
     @Test
     void addNote_shouldAssignIdStoreAndReturnNote() {
-        Note created = service.addNote("Заголовок", "Текст", Set.of("one", "two"));
+        Note created = service.addNote("Заголовок", "Текст",
+                Set.of("one", "two"));
         assertNotNull(created);
         assertTrue(created.getId() > 0);
         assertEquals("Заголовок", created.getTitle());
