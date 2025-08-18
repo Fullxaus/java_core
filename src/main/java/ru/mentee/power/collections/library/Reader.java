@@ -1,12 +1,14 @@
 package ru.mentee.power.collections.library;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Reader {
+public class Reader implements Serializable {
     private String id;
     private String name;
     private String email;
     private ReaderCategory category;
+    private static final long serialVersionUID = 1L;
 
     public enum ReaderCategory {
         STUDENT, TEACHER, REGULAR, VIP

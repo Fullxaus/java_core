@@ -1,5 +1,6 @@
 package ru.mentee.power.collections.library;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -8,7 +9,7 @@ import java.util.Objects;
  * Содержит информацию об ISBN, читателе, датах выдачи,
  * сроке возврата и фактическом возврате.
  */
-public class Borrowing {
+public class Borrowing implements Serializable {
 
     /** ISBN книги. */
     private final String isbn;
@@ -24,6 +25,7 @@ public class Borrowing {
 
     /** Фактическая дата возврата книги. Null, если не возвращена. */
     private LocalDate returnDate;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Конструктор создаёт запись о выдаче книги.
