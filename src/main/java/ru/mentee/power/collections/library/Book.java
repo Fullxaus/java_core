@@ -1,10 +1,11 @@
 package ru.mentee.power.collections.library;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class Book {
+public class Book implements Serializable {
     private String isbn;
     private String title;
     private Set<String> authors;
@@ -12,6 +13,7 @@ public class Book {
     private int publicationYear;
     private int pageCount;
     private boolean available;
+    private static final long serialVersionUID = 1L;
 
     public enum Genre {
         FICTION, NON_FICTION, SCIENCE, HISTORY, FANTASY, DETECTIVE, ROMANCE, BIOGRAPHY, CHILDREN, PROGRAMMING, SCIENTIFIC
